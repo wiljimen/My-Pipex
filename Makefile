@@ -1,4 +1,4 @@
-NAME = pipex.a
+NAME = pipex
 
 RED		=	\033[91;1m
 GREEN	=	\033[92;1m
@@ -10,7 +10,7 @@ CFLAGS = -Wall -Wextra -Werror -g3
 
 RM = rm -f
 		
-SRCS = src/pipex.c
+SRCS = src/pipex.c src/pipex_aux.c
 
 OBJS = $(SRCS:.c=.o)
 

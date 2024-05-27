@@ -6,11 +6,11 @@
 /*   By: wiljimen <wiljimen@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/22 11:16:35 by wiljimen          #+#    #+#             */
-/*   Updated: 2024/05/22 11:21:03 by wiljimen         ###   ########.fr       */
+/*   Updated: 2024/05/27 08:58:28 by wiljimen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../pipex.h"
+#include "../includes/pipex.h"
 
 void	print_error(char *str)
 {
