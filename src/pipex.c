@@ -6,40 +6,11 @@
 /*   By: wiljimen <wiljimen@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:06:23 by wiljimen          #+#    #+#             */
-/*   Updated: 2024/05/27 19:55:40 by wiljimen         ###   ########.fr       */
+/*   Updated: 2024/05/28 17:41:02 by wiljimen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/pipex.h"
-
-char	**find_path(char **env)
-{
-	char	*path_save;
-	char	**path_complete;
-	int		i;
-
-	path_save = NULL;
-	path_complete = NULL;
-	i = 0;
-	while (env[i])
-	{
-		if (ft_strnstr(env[i], "PATH=", 5))
-		{
-			path_save = env[i] + 5;
-			break ;
-		}
-		i++;
-	}
-	path_complete = ft_split(path_save, ':');
-	ft_protect(path_complete, "Free done in Path\n");
-	i = 0;
-	while (path_complete[i])
-	{
-		path_complete[i] = ft_strjoin(path_complete[i], "/");
-		i++;
-	}
-	return (path_complete);
-}
 
 char	**access_checker(char *argv, char **env)
 {
@@ -67,12 +38,6 @@ char	**access_checker(char *argv, char **env)
 		j++;
 	}
 	free(path);
-	i = 0;
-	while (path_real[i])
-	{
-		printf("%s\n", path_real[i]);
-		i++;
-	}
 	return (path_real);
 }
 
@@ -85,40 +50,81 @@ char	**command_separator(char *argv, char **env)
 	i = 0;
 	cmd = ft_split(argv, ' ');
 	path_real = access_checker(cmd[0], env);
+	i = 0;
 	if (!path_real[i])
 	{
-		printf("zsh: command not found: %s\n", cmd[0]);
+		ft_printf("Command not found: %s\n", cmd[0]);
 		ft_free(path_real, "");
 	}
-
+	ft_free_two(path_real);
 	return (cmd);
 }
 
-// void	father_process(char **path_real, char *argv, char **env, char **cmd)
-// {
-// 	int		fd[2];
-// 	int		fd1;
-// 	int		pid;
-// 	int		i;
-	
-// 	pid = fork();
-// 	i = 0;
-// 	pipe(fd);
-// 	if (pid == 0)
-// 	{
-// 		close(fd[READ_END]);
-// 		dup2(fd[WRITE_END], STDOUT_FILENO);
-// 		close(fd[WRITE_END]);
-// 		execve(path_real[i], ,env);
-// 	}
+void	son_process(int *fd, char **argv, char **env)
+{
+	int		fd_infile;
+	char	**path_real;
+	char	**cmd;
 
-// }
+	cmd = command_separator(argv[2], env);
+	path_real = access_checker(cmd[0], env);
+	fd_infile = open(argv[1], O_RDONLY);
+	if (fd_infile == -1)
+	{
+		ft_printf("Bad infile\n");
+		exit(EXIT_FAILURE);
+	}
+	dup2(fd[WRITE_END], STDOUT_FILENO);
+	dup2(fd_infile, STDIN_FILENO);
+	close(fd[READ_END]);
+	execve(path_real[0], cmd, NULL);
+	ft_free_two(path_real);
+	ft_free_two(cmd);
+}
+
+void	father_process(int *fd, char **argv, char **env)
+{
+	int		fd_outfile;
+	char	**path_real;
+	char	**cmd;
+
+	cmd = command_separator(argv[3], env);
+	path_real = access_checker(cmd[0], env);
+	fd_outfile = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fd_outfile == -1)
+	{
+		ft_printf("Bad outfile\n");
+		exit(EXIT_FAILURE);
+	}
+	dup2(fd[READ_END], STDIN_FILENO);
+	dup2(fd_outfile, STDOUT_FILENO);
+	close(fd[WRITE_END]);
+	execve(path_real[0], cmd, NULL);
+	ft_free_two(path_real);
+	ft_free_two(cmd);
+}
 
 int	main(int argc, char **argv, char **env)
 {
-	if (argc != 2)
-		print_error("More or less than 5 arguments");
-	command_separator(argv[1], env);
+	int	fd[2];
+	int	pid;		
+	int	status;
+
+	if (argc != 5)
+	{
+		ft_printf("More or less than 5 arguments\n");
+		exit(EXIT_FAILURE);
+	}
+	if (pipe(fd) == -1)
+	{
+		ft_printf("Bad pipe\n");
+		exit(EXIT_FAILURE);
+	}
+	pid = fork();
+	if (pid == 0)
+		son_process(fd, argv, env);
+	father_process(fd, argv, env);
+	waitpid(pid, &status, 0);
 	system("leaks -q pipex");
-    return (0);
+	return (0);
 }
