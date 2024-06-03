@@ -6,7 +6,7 @@
 /*   By: wiljimen <wiljimen@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:06:23 by wiljimen          #+#    #+#             */
-/*   Updated: 2024/06/03 19:25:59 by wiljimen         ###   ########.fr       */
+/*   Updated: 2024/06/03 19:33:17 by wiljimen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,9 @@ int	main(int argc, char **argv, char **env)
 
 	if (argc != 5)
 		exit_value(1, "More or less than 5 arguments");
-	if (!argv[3][0] || (!argv[2][0] && !argv[3][0]))
+	if (!argv[2][0] && !argv[3][0])
+		exit_value(127, "Permission denied");
+	if (!argv[3][0])
 		exit_value(126, "Permission denied");
 	if (!argv[2][0])
 		ft_printf("Permission denied\n");
