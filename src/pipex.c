@@ -6,7 +6,7 @@
 /*   By: wiljimen <wiljimen@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:06:23 by wiljimen          #+#    #+#             */
-/*   Updated: 2024/06/03 17:47:32 by wiljimen         ###   ########.fr       */
+/*   Updated: 2024/06/03 19:25:59 by wiljimen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,10 +121,11 @@ int	main(int argc, char **argv, char **env)
 	int	status;
 
 	if (argc != 5)
-	{
-		ft_printf("More or less than 5 arguments\n");
-		exit(EXIT_FAILURE);
-	}
+		exit_value(1, "More or less than 5 arguments");
+	if (!argv[3][0] || (!argv[2][0] && !argv[3][0]))
+		exit_value(126, "Permission denied");
+	if (!argv[2][0])
+		ft_printf("Permission denied\n");
 	if (pipe(fd) == -1)
 	{
 		ft_printf("Bad pipe\n");

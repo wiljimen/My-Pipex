@@ -10,7 +10,7 @@ CFLAGS = -Wall -Wextra -Werror -g3
 
 RM = rm -f
 		
-SRCS = src/pipex.c src/pipex_aux.c
+SRCS = src/pipex.c src/pipex_aux.c src/pipex_aux_two.c
 
 OBJS = $(SRCS:.c=.o)
 
