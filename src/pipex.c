@@ -6,7 +6,7 @@
 /*   By: wiljimen <wiljimen@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:06:23 by wiljimen          #+#    #+#             */
-/*   Updated: 2024/05/28 17:41:02 by wiljimen         ###   ########.fr       */
+/*   Updated: 2024/06/03 17:42:57 by wiljimen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,17 +25,24 @@ char	**access_checker(char *argv, char **env)
 	path = find_path(env);
 	path_real = ft_calloc(array_len(path) + 1, sizeof(char *));
 	ft_protect(path_real, "path_real");
-	while (path[j])
+	if ((access(argv, X_OK)) == 0)
 	{
-		temp = path[j];
-		temp = ft_strjoin(temp, argv);
-		if ((access(temp, X_OK)) == 0 || access(temp, F_OK) == 0)
+		path_real[i] = ft_strdup(argv);
+	}
+	else
+	{
+		while (path[j])
 		{
-			path_real[i] = ft_strdup(temp);
-			i++;
+			temp = path[j];
+			temp = ft_strjoin(temp, argv);
+			if ((access(temp, X_OK)) == 0 || access(temp, F_OK) == 0)
+			{
+				path_real[i] = ft_strdup(temp);
+				i++;
+			}
+			free(temp);
+			j++;
 		}
-		free(temp);
-		j++;
 	}
 	free(path);
 	return (path_real);
@@ -77,7 +84,10 @@ void	son_process(int *fd, char **argv, char **env)
 	dup2(fd[WRITE_END], STDOUT_FILENO);
 	dup2(fd_infile, STDIN_FILENO);
 	close(fd[READ_END]);
-	execve(path_real[0], cmd, NULL);
+	if ((access(cmd[0], X_OK)) == 0)
+		execve(cmd[0], cmd, NULL);
+	else
+		execve(path_real[0], cmd, NULL);
 	ft_free_two(path_real);
 	ft_free_two(cmd);
 }
@@ -99,7 +109,10 @@ void	father_process(int *fd, char **argv, char **env)
 	dup2(fd[READ_END], STDIN_FILENO);
 	dup2(fd_outfile, STDOUT_FILENO);
 	close(fd[WRITE_END]);
-	execve(path_real[0], cmd, NULL);
+	if ((access(cmd[0], X_OK)) == 0)
+		execve(cmd[0], cmd, NULL);
+	else
+		execve(path_real[0], cmd, NULL);
 	ft_free_two(path_real);
 	ft_free_two(cmd);
 }
