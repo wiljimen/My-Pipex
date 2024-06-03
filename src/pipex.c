@@ -6,7 +6,7 @@
 /*   By: wiljimen <wiljimen@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:06:23 by wiljimen          #+#    #+#             */
-/*   Updated: 2024/06/03 17:42:57 by wiljimen         ###   ########.fr       */
+/*   Updated: 2024/06/03 17:47:32 by wiljimen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,24 +25,17 @@ char	**access_checker(char *argv, char **env)
 	path = find_path(env);
 	path_real = ft_calloc(array_len(path) + 1, sizeof(char *));
 	ft_protect(path_real, "path_real");
-	if ((access(argv, X_OK)) == 0)
+	while (path[j])
 	{
-		path_real[i] = ft_strdup(argv);
-	}
-	else
-	{
-		while (path[j])
+		temp = path[j];
+		temp = ft_strjoin(temp, argv);
+		if ((access(temp, X_OK)) == 0 || access(temp, F_OK) == 0)
 		{
-			temp = path[j];
-			temp = ft_strjoin(temp, argv);
-			if ((access(temp, X_OK)) == 0 || access(temp, F_OK) == 0)
-			{
-				path_real[i] = ft_strdup(temp);
-				i++;
-			}
-			free(temp);
-			j++;
+			path_real[i] = ft_strdup(temp);
+			i++;
 		}
+		free(temp);
+		j++;
 	}
 	free(path);
 	return (path_real);
@@ -58,6 +51,10 @@ char	**command_separator(char *argv, char **env)
 	cmd = ft_split(argv, ' ');
 	path_real = access_checker(cmd[0], env);
 	i = 0;
+	if ((access(argv, X_OK)) == 0)
+	{
+		path_real[i] = ft_strdup(argv);
+	}
 	if (!path_real[i])
 	{
 		ft_printf("Command not found: %s\n", cmd[0]);
