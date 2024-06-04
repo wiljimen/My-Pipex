@@ -39,6 +39,7 @@ clean :
 fclean : clean
 		@$(RM) $(NAME)
 		@make fclean -sC  $(LIBFT_DIR)
+		@$(RM) outfile infile
 		@$(RM) $(NAME) libft.a
 		@echo "$(RED)fclean done"
 
