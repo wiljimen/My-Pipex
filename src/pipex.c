@@ -6,7 +6,7 @@
 /*   By: wiljimen <wiljimen@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:06:23 by wiljimen          #+#    #+#             */
-/*   Updated: 2024/06/03 19:33:17 by wiljimen         ###   ########.fr       */
+/*   Updated: 2024/08/12 17:12:43 by wiljimen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,6 +138,5 @@ int	main(int argc, char **argv, char **env)
 		son_process(fd, argv, env);
 	father_process(fd, argv, env);
 	waitpid(pid, &status, 0);
-	system("leaks -q pipex");
 	return (0);
 }
