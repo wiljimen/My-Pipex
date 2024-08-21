@@ -10,7 +10,7 @@ CFLAGS = -Wall -Wextra -Werror -g3
 
 RM = rm -f
 		
-SRCS = src/pipex.c src/pipex_aux.c src/pipex_aux_two.c
+SRCS = src/pipex.c src/path_check.c src/args_values.c
 
 OBJS = $(SRCS:.c=.o)
 
@@ -26,9 +26,8 @@ bonus: $(NAME_BONUS)
 
 $(NAME): $(OBJS)
 	@make all -sC $(LIBFT_DIR)
-	@cp ./libft/libft.a .
 	@echo "$(GREEN)Libft compiled"
-	@$(CC) $(CFLAGS) $(OBJS) $(INCLUDES) libft.a -o $(NAME)
+	@$(CC) $(CFLAGS) $(OBJS) $(INCLUDES) $(LIBFT_DIR)libft.a -o $(NAME)
 	@echo "$(GREEN)Pipex compiled"
 
 clean :
