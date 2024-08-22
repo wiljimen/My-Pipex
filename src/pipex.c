@@ -6,7 +6,7 @@
 /*   By: wiljimen <wiljimen@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:06:23 by wiljimen          #+#    #+#             */
-/*   Updated: 2024/08/21 17:41:57 by wiljimen         ###   ########.fr       */
+/*   Updated: 2024/08/22 17:30:17 by wiljimen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ void	first_son_process(int *fd, char **argv, char **env)
 	path_real = access_checker(cmd[0], env);
 	fd_infile = open(argv[1], O_RDONLY);
 	if (fd_infile == -1)
-		print_error("Bad infile\n");
+		exit_value(EXIT_FAILURE, "Error");
 	dup2(fd[WRITE_END], STDOUT_FILENO);
 	dup2(fd_infile, STDIN_FILENO);
 	close(fd[READ_END]);
@@ -75,7 +75,7 @@ void	first_son_process(int *fd, char **argv, char **env)
 		execve(path_real[0], path_real, NULL);
 	else
 		execve(path_real[0], cmd, NULL);
-	perror("Error");
+	exit_value(EXIT_FAILURE, "Error");
 }
 
 void	second_son_process(int *fd, char **argv, char **env)
@@ -86,14 +86,9 @@ void	second_son_process(int *fd, char **argv, char **env)
 
 	cmd = command_separator(argv[3], env);
 	path_real = access_checker(cmd[0], env);
-	if (access(path_real[0], F_OK != 0))
-	{
-		code_error("Command not found: ", argv[3]);
-		exit (127);
-	}
 	fd_outfile = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (fd_outfile == -1)
-		print_error("Bad outfile\n");
+		exit_value(EXIT_FAILURE, "Error");
 	dup2(fd[READ_END], STDIN_FILENO);
 	dup2(fd_outfile, STDOUT_FILENO);
 	close(fd[WRITE_END]);
@@ -101,7 +96,7 @@ void	second_son_process(int *fd, char **argv, char **env)
 		execve(path_real[0], path_real, NULL);
 	else
 		execve(path_real[0], cmd, NULL);
-	perror("Error");
+	exit_value(EXIT_FAILURE, "Error");
 }
 
 int	main(int argc, char **argv, char **env)
@@ -113,11 +108,15 @@ int	main(int argc, char **argv, char **env)
 
 	check_args(argv, argc, env);
 	if (pipe(fd) == -1)
-		print_error("Bad pipe\n");
+		exit_value(EXIT_FAILURE, "Error");
 	pid1 = fork();
+	if (pid1 < 0)
+		exit_value(EXIT_FAILURE, "Error");
 	if (pid1 == 0)
 		first_son_process(fd, argv, env);
 	pid2 = fork();
+	if (pid2 < 0)
+		exit_value(EXIT_FAILURE, "Error");
 	if (pid2 == 0)
 		second_son_process(fd, argv, env);
 	(close(fd[0]), close(fd[1]));

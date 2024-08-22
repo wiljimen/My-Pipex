@@ -6,7 +6,7 @@
 /*   By: wiljimen <wiljimen@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/03 18:12:54 by wiljimen          #+#    #+#             */
-/*   Updated: 2024/08/21 17:42:08 by wiljimen         ###   ########.fr       */
+/*   Updated: 2024/08/22 16:45:24 by wiljimen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	exit_value(int n, char *str)
 {
-	ft_putstr_fd(str, 1);
+	perror(str);
 	exit(n);
 }
 
@@ -29,17 +29,39 @@ void	check_args(char **argv, int argc, char **env)
 	if (!argv[2][0])
 		ft_printf("Permission denied\n");
 	if (!*env)
-		print_error("Env Error\n");
+		exit_value(EXIT_FAILURE, "Error");
 }
 
-void	print_error(char *str)
+void	ft_free_two(char **argv)
 {
-	ft_putstr_fd(str, STDERR_FILENO);
+	int	i;
+
+	i = 0;
+	while (argv[i])
+	{
+		free(argv[i]);
+		i++;
+	}
+	free(argv);
+}
+
+void	ft_free(char **temp, char *str)
+{
+	int	i;
+
+	i = 0;
+	while (temp[i])
+	{
+		free(temp[i]);
+		i++;
+	}
+	free(temp);
+	ft_putstr_fd(str, 1);
 	exit(EXIT_FAILURE);
 }
 
-void	code_error(char *str, char *cmd)
+void	ft_protect(char **temp, char *str)
 {
-	ft_putstr_fd(str, 1);
-	ft_putstr_fd(cmd, 1);
+	if (!temp)
+		ft_free(temp, str);
 }
