@@ -6,7 +6,7 @@
 /*   By: wiljimen <wiljimen@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:06:23 by wiljimen          #+#    #+#             */
-/*   Updated: 2024/08/22 17:30:17 by wiljimen         ###   ########.fr       */
+/*   Updated: 2024/08/22 18:24:32 by wiljimen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ char	**access_checker(char *argv, char **env)
 	j = 0;
 	path = find_path(env);
 	path_real = ft_calloc(array_len(path) + 1, sizeof(char *));
-	ft_protect(path_real, "path_real");
+	ft_protect(path_real);
 	while (path[j])
 	{
 		temp = path[j];
@@ -67,15 +67,18 @@ void	first_son_process(int *fd, char **argv, char **env)
 	path_real = access_checker(cmd[0], env);
 	fd_infile = open(argv[1], O_RDONLY);
 	if (fd_infile == -1)
-		exit_value(EXIT_FAILURE, "Error");
+	{
+		perror("Can't access infile");
+		exit(1);
+	}
 	dup2(fd[WRITE_END], STDOUT_FILENO);
 	dup2(fd_infile, STDIN_FILENO);
 	close(fd[READ_END]);
 	if ((access(cmd[0], X_OK)) == 0)
-		execve(path_real[0], path_real, NULL);
+		execve(cmd[0], cmd, NULL);
 	else
 		execve(path_real[0], cmd, NULL);
-	exit_value(EXIT_FAILURE, "Error");
+	ft_error(ENOENT);
 }
 
 void	second_son_process(int *fd, char **argv, char **env)
@@ -88,15 +91,18 @@ void	second_son_process(int *fd, char **argv, char **env)
 	path_real = access_checker(cmd[0], env);
 	fd_outfile = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (fd_outfile == -1)
-		exit_value(EXIT_FAILURE, "Error");
+	{
+		perror("Cant access outfile");
+		exit(1);
+	}
 	dup2(fd[READ_END], STDIN_FILENO);
 	dup2(fd_outfile, STDOUT_FILENO);
 	close(fd[WRITE_END]);
 	if ((access(cmd[0], X_OK)) == 0)
-		execve(path_real[0], path_real, NULL);
+		execve(cmd[0], cmd, NULL);
 	else
 		execve(path_real[0], cmd, NULL);
-	exit_value(EXIT_FAILURE, "Error");
+	ft_error(ENOENT);
 }
 
 int	main(int argc, char **argv, char **env)
@@ -108,15 +114,15 @@ int	main(int argc, char **argv, char **env)
 
 	check_args(argv, argc, env);
 	if (pipe(fd) == -1)
-		exit_value(EXIT_FAILURE, "Error");
+		ft_error(EPIPE);
 	pid1 = fork();
 	if (pid1 < 0)
-		exit_value(EXIT_FAILURE, "Error");
+		ft_error(EXIT_FAILURE);
 	if (pid1 == 0)
 		first_son_process(fd, argv, env);
 	pid2 = fork();
 	if (pid2 < 0)
-		exit_value(EXIT_FAILURE, "Error");
+		ft_error(EXIT_FAILURE);
 	if (pid2 == 0)
 		second_son_process(fd, argv, env);
 	(close(fd[0]), close(fd[1]));

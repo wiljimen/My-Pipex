@@ -6,16 +6,17 @@
 /*   By: wiljimen <wiljimen@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/03 18:12:54 by wiljimen          #+#    #+#             */
-/*   Updated: 2024/08/22 16:45:24 by wiljimen         ###   ########.fr       */
+/*   Updated: 2024/08/22 18:43:29 by wiljimen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/pipex.h"
 
-void	exit_value(int n, char *str)
+void	ft_error(int error_num)
 {
-	perror(str);
-	exit(n);
+	errno = error_num;
+	perror("Error");
+	exit(EXIT_FAILURE);
 }
 
 void	check_args(char **argv, int argc, char **env)
@@ -27,9 +28,9 @@ void	check_args(char **argv, int argc, char **env)
 	if (!argv[3][0])
 		exit_value(127, "Permission denied");
 	if (!argv[2][0])
-		ft_printf("Permission denied\n");
+		perror("Permission denied\n");
 	if (!*env)
-		exit_value(EXIT_FAILURE, "Error");
+		ft_error(ENXIO);
 }
 
 void	ft_free_two(char **argv)
@@ -45,7 +46,7 @@ void	ft_free_two(char **argv)
 	free(argv);
 }
 
-void	ft_free(char **temp, char *str)
+void	ft_free(char **temp)
 {
 	int	i;
 
@@ -56,12 +57,11 @@ void	ft_free(char **temp, char *str)
 		i++;
 	}
 	free(temp);
-	ft_putstr_fd(str, 1);
 	exit(EXIT_FAILURE);
 }
 
-void	ft_protect(char **temp, char *str)
+void	ft_protect(char **temp)
 {
 	if (!temp)
-		ft_free(temp, str);
+		ft_free(temp);
 }
